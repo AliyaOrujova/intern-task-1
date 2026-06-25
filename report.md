@@ -1,1 +1,0 @@
-I expect that for smaller lists insertion sort should be faster, since it has low overhead, and does not use additional arrays or recursion. Technically, merge sort does have a better time complexity of O(nlogn) but it has extra overhead because of 
