@@ -26,9 +26,15 @@ def generate_data(n, data_type):
             data[i], data[j] = data[j], data[i]
 
         return data
+    elif data_type == "all_equal":
+        return [1 for _ in range(n)]
+    elif data_type == "few_unique":
+        number_of_unique_values = max(2, int(n ** 0.5))
+        data = [random.randint(0, number_of_unique_values - 1) for _ in range(n)]
+        return data
     else:
         raise ValueError(f"Unknown data type: {data_type}")
-
+    
 
 if __name__ == "__main__":
     sizes = [5, 10, 20]
