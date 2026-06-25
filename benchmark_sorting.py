@@ -18,33 +18,36 @@ def generate_data(n, data_type):
         return data
     elif data_type == "nearly_sorted":
         data = list(range(n))
+        if n < 2:
+            return data
         number_of_swaps = max(1, n // 20) #This is to ensure that we have at least one swap in the list. We divide n by 20 to get a number that is 5% of the size of the list. This will give us a good mix of sorted and unsorted values in the list. We use the max function to ensure that we have at least one swap in the list, even if n is less than 20. If n is less than 20, we will have a list with all sorted values, which is not what we want. By using max(1, n // 20), we ensure that we always have at least one swap in the list, regardless of the size of n.
 
         for _ in range(number_of_swaps):
-            i = random.randint(0, n - 1)
+            i = random.randint(0, n - 1)#This is to select a random index in the list. We use the random.randint function to generate a random integer between 0 and n - 1, which will give us a valid index in the list. This will ensure that we have a good mix of sorted and unsorted values in the list, and that they are randomly distributed throughout the list.
             j = random.randint(0, n - 1)
-            data[i], data[j] = data[j], data[i]
+            data[i], data[j] = data[j], data[i] #This is to swap the values at the two randomly selected indices in the list. We use tuple unpacking to swap the values in a single line of code. This will ensure that we have a good mix of sorted and unsorted values in the list, and that they are randomly distributed throughout the list.
 
         return data
     elif data_type == "all_equal":
-        return [1 for _ in range(n)]
+        return [1 for _ in range(n)] #It's literally all 1s.
     elif data_type == "few_unique":
-        number_of_unique_values = max(2, int(n ** 0.5))
-        data = [random.randint(0, number_of_unique_values - 1) for _ in range(n)]
+        number_of_unique_values = max(2, int(n ** 0.5))#This line helps to make sure that we have at least 2 unique values in the list. We take the square root of n to get a number that is proportional to the size of the list. This will give us a good mix of unique and duplicate values in the list. We use the max function to ensure that we have at least 2 unique values in the list, even if n is less than 4. If n is less than 4, we will have a list with all duplicate values, which is not what we want. By using max(2, int(n ** 0.5)), we ensure that we always have at least 2 unique values in the list, regardless of the size of n.
+        data = [random.randint(0, number_of_unique_values - 1) for _ in range(n)]#This is to create a list of length n with a mix of unique and duplicate values. We use the random.randint function to generate a random integer between 0 and number_of_unique_values - 1, which will give us a valid value for the list. This will ensure that we have a good mix of unique and duplicate values in the list, and that they are randomly distributed throughout the list.
         return data
     else:
         raise ValueError(f"Unknown data type: {data_type}")
     
 
 if __name__ == "__main__":
-    sizes = [5, 10, 20]
+    sizes = [5, 10, 20,50,100]
     data_types = [
     "random",
     "sorted",
     "reverse",
     "duplicates",
     "nearly_sorted",
-    "all_equal"
+    "all_equal",
+    "few_unique"
 ]
 
     for data_type in data_types:
