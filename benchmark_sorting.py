@@ -106,9 +106,9 @@ def run_benchmarks():
                 writer.writerow([data_type, size, "merge_sort", merge_time])
 
                 print(
-                    f"n={size:4d} | "
-                    f"insertion={insertion_time:.8f}s | "
-                    f"merge={merge_time:.8f}s"
+                    f"n={size:4d} | " #.4d means that the number will be printed with a width of 4 characters, and it will be right-aligned. If the number has fewer than 4 digits, it will be padded with spaces on the left to ensure that it takes up 4 characters in total. This formatting is useful for creating a clean and aligned output when printing multiple numbers in a table-like format.
+                    f"insertion={insertion_time:.8f}s | "#.8f means that the number will be printed as a floating-point number with 8 digits after the decimal point. This formatting is useful for displaying timing results with a high level of precision, allowing us to see small differences in the performance of the sorting algorithms. The 's' at the end indicates that the time is measured in seconds.
+                    f"merge={merge_time:.8f}s"#and f in general is used to indicate that the string is a formatted string literal, which allows us to embed expressions inside the string using curly braces {}. The expressions are evaluated at runtime, and their values are inserted into the string at the corresponding positions. This makes it easy to create dynamic strings that include variable values or computed results, such as the timing results of the sorting algorithms in this case.
                 )
 
     print("\nBenchmarking finished. Results saved to results/benchmark_results.csv")
