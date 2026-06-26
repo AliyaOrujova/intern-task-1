@@ -1,5 +1,7 @@
 import random
-
+import csv 
+import time
+from sorting_algorithms import insertion_sort, merge_sort
 
 def generate_data(n, data_type):
     if data_type == "random":
@@ -36,8 +38,86 @@ def generate_data(n, data_type):
         return data
     else:
         raise ValueError(f"Unknown data type: {data_type}")
-    
 
+def time_algorithm(sort_function, data, repeats):
+    times = []
+
+    for _ in range(repeats): #This is to run the sorting algorithm multiple times on the same data and take the average time. This will help to reduce the impact of any outliers or fluctuations in the timing results, and give us a more reliable measurement of the performance of the sorting algorithm for the given data type and size.
+        start_time = time.perf_counter()
+        sort_function(data)
+        end_time = time.perf_counter()
+
+        times.append(end_time - start_time)
+
+    average_time = sum(times) / len(times) #and this is to take the averate time. 
+    return average_time
+
+
+def warm_up():#the reason I have this is because the first time a function is called, it can take longer due to various factors such as caching, memory allocation, and other optimizations that the Python interpreter may perform. By running the sorting algorithms on a small dataset before the actual benchmarking, we can ensure that these optimizations have already been performed and that the timing results are more accurate and consistent.
+    data_types = ["random", "sorted", "reverse", "duplicates"]
+
+    for data_type in data_types:
+        sample_data = generate_data(100, data_type)
+
+        insertion_sort(sample_data)
+        merge_sort(sample_data)
+
+def run_benchmarks():
+    random.seed(300)#we need a seed because we want to be able to reproduce the results of the benchmark. If we do not set a seed, the random number generator will produce different results each time the benchmark is run, which will make it difficult to compare the results of different runs. By setting a seed, we ensure that the random number generator produces the same sequence of random numbers each time the benchmark is run, which allows us to compare the results of different runs more easily.
+    RANDOM_SEED = 42
+    MIN_SIZE = 0
+    MAX_SIZE = 500
+    SIZE_STEP = 1
+    REPEATS = 10 #we can adjust these numbers later if needed.
+    SIZES = list(range(MIN_SIZE, MAX_SIZE + 1, SIZE_STEP))#I wanted to use continous sizes from 0 to 500 with a step of 1. This will give us a good range of sizes to test the sorting algorithms on, and will allow us to see how the performance of the algorithms changes as the size of the input data increases. By using a step of 1, we can also see how the performance of the algorithms changes for small changes in the size of the input data, which can be useful for understanding the behavior of the algorithms in more detail.
+
+    data_types = [
+        "random",
+        "sorted",
+        "reverse",
+        "duplicates",
+        "nearly_sorted",
+        "all_equal",
+        "few_unique",
+    ]
+
+    warm_up()
+
+    with open("results/benchmark_results.csv", "w", newline="") as file: #okay so this part is to open a file called benchmark_results.csv in the results directory for writing. The newline="" argument is used to ensure that the CSV file is written with the correct line endings, regardless of the operating system being used. This is important because different operating systems use different line endings (e.g., Windows uses \r\n, while Unix-based systems use \n), and using the wrong line endings can cause issues when reading the CSV file later. By specifying newline="", we ensure that the CSV file is written with the correct line endings for the current operating system.
+        writer = csv.writer(file) #this is to create a CSV writer object that will be used to write data to the CSV file. The csv.writer function takes the file object as an argument and returns a writer object that can be used to write rows of data to the CSV file. We will use this writer object to write the benchmark results to the CSV file in a structured format, with each row representing a single benchmark result.
+
+        writer.writerow([
+            "data_type",
+            "size",
+            "algorithm",
+            "average_time_seconds"
+        ])
+
+        for data_type in data_types: #This part is to iterate through each data type and size, generate the corresponding data, and time the sorting algorithms. The results are then written to the CSV file using the writer object. This allows us to systematically benchmark the sorting algorithms across different types of input data and sizes, and store the results in a structured format for later analysis.
+            print(f"\nTesting data type: {data_type}")
+
+            for size in SIZES:
+                data = generate_data(size, data_type)
+
+                insertion_time = time_algorithm(insertion_sort, data, REPEATS) #The REPEATS here is to ensure that we get a more accurate measurement of the time taken by the sorting algorithm. By running the sorting algorithm multiple times on the same data and taking the average time, we can reduce the impact of any outliers or fluctuations in the timing results. This will give us a more reliable measurement of the performance of the sorting algorithm for the given data type and size.
+                merge_time = time_algorithm(merge_sort, data, REPEATS)
+
+                writer.writerow([data_type, size, "insertion_sort", insertion_time])
+                writer.writerow([data_type, size, "merge_sort", merge_time])
+
+                print(
+                    f"n={size:4d} | "
+                    f"insertion={insertion_time:.8f}s | "
+                    f"merge={merge_time:.8f}s"
+                )
+
+    print("\nBenchmarking finished. Results saved to results/benchmark_results.csv")
+
+
+if __name__ == "__main__":
+    run_benchmarks()
+
+"""
 if __name__ == "__main__":
     sizes = [5, 10, 20,50,100]
     data_types = [
@@ -56,3 +136,7 @@ if __name__ == "__main__":
         for n in sizes:
             data = generate_data(n, data_type)
             print(f"n = {n}: {data}")
+
+
+
+"""
