@@ -1,0 +1,21 @@
+{
+    "random_seed": 300,
+    "min_size": 0,
+    "max_size": 200,
+    "size_step": 1,
+    "repeats_per_test": 10,
+    "algorithms": [
+        "insertion_sort",
+        "selection_sort",
+        "merge_sort"
+    ],
+    "data_types": [
+        "random",
+        "sorted",
+        "reverse",
+        "duplicates",
+        "nearly_sorted",
+        "all_equal",
+        "few_unique"
+    ]
+}

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from importlib import metadata
 from mimetypes import add_type
 import os
 import textwrap
@@ -14,12 +15,13 @@ import pandas as pd
 from matplotlib.backends.backend_pdf import PdfPages
 from matplotlib.patches import FancyBboxPatch, Rectangle
 from matplotlib.ticker import MultipleLocator, MaxNLocator
+import json
 
 INPUT_FILE = Path("results/benchmark_results.csv")
 OUTPUT_FOLDER = Path("results/plots")
 PDF_REPORT = Path("results/sorting_graph_report.pdf")
 CROSSOVER_FILE = Path("results/crossover_summary.csv")
-
+METADATA_FILE = Path("results/benchmark_metadata.json")
 MINIMUM_CROSSOVER_SIZE = 2
 CONSECUTIVE_REQUIRED = 5
 
@@ -85,6 +87,12 @@ def setup_style() -> None:
         "legend.edgecolor": COLORS["border"], #this means that the legend will have a border color that matches the border color of the plot. This is to ensure that the legend is easily readable and stands out against the background of the plot. The matching border color also helps to create a clean and professional look for the plot.
     })
 
+def load_metadata() -> dict:
+    if not METADATA_FILE.exists():
+        return {}
+
+    with open(METADATA_FILE, "r") as file:
+        return json.load(file)
 
 def clean_column_name(name: str) -> str:
     return str(name).strip().lower().replace(" ", "_").replace("-", "_")#this function is to clean the column names of the dataframe. It takes in a string name and returns a cleaned version of the name. The cleaning process involves stripping any leading or trailing whitespace, converting the name to lowercase, replacing spaces with underscores, and replacing hyphens with underscores. This is done to ensure that the column names are consistent and easy to work with in the code.
@@ -374,6 +382,8 @@ def create_cover_page(pdf: PdfPages, df: pd.DataFrame, page: int) -> None:
 
     fig.add_artist(Rectangle((0, 0.72), 1, 0.28, transform=fig.transFigure, color=COLORS["navy"]))
     fig.add_artist(Rectangle((0, 0.70), 1, 0.02, transform=fig.transFigure, color=COLORS["accent"]))
+    metadata = load_metadata()
+    repeats_per_test = metadata.get("repeats_per_test", "Unknown")
 
     fig.text(
         0.065,
@@ -438,7 +448,7 @@ def create_cover_page(pdf: PdfPages, df: pd.DataFrame, page: int) -> None:
     metric_start_x = (1 - (4 * metric_w + 3 * metric_gap)) / 2
 
     metrics = [
-        ("Benchmark rows", f"{len(df):,}"),
+        ("Repeats per test", str(repeats_per_test)),
         ("Input patterns", str(df["data_type"].nunique())),
         ("Algorithms", str(df["algorithm"].nunique())),
         ("Input range", f"{int(df['size'].min())}-{int(df['size'].max())}"),

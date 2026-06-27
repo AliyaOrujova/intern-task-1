@@ -2,6 +2,8 @@ import random
 import csv 
 import time
 from sorting_algorithms import insertion_sort, merge_sort, selection_sort
+import json
+import os
 
 def generate_data(n, data_type):
     if data_type == "random":
@@ -75,6 +77,8 @@ def run_benchmarks():
     ("selection_sort", selection_sort),
     ("merge_sort", merge_sort),
 ]
+    os.makedirs("results", exist_ok=True)
+
     #we need a seed because we want to be able to reproduce the results of the benchmark. If we do not set a seed, the random number generator will produce different results each time the benchmark is run, which will make it difficult to compare the results of different runs. By setting a seed, we ensure that the random number generator produces the same sequence of random numbers each time the benchmark is run, which allows us to compare the results of different runs more easily.
     RANDOM_SEED = 300
     random.seed(RANDOM_SEED)
@@ -94,6 +98,19 @@ def run_benchmarks():
         "few_unique",
     ]
 
+    metadata = {
+        "random_seed": RANDOM_SEED,
+        "min_size": MIN_SIZE,
+        "max_size": MAX_SIZE,
+        "size_step": SIZE_STEP,
+        "repeats_per_test": REPEATS,
+        "algorithms": [algorithm_name for algorithm_name, _ in algorithms],
+        "data_types": data_types,
+    }
+
+    with open("results/benchmark_metadata.json", "w") as metadata_file:
+        json.dump(metadata, metadata_file, indent=4)
+        
     warm_up()
 
     with open("results/benchmark_results.csv", "w", newline="") as file: #okay so this part is to open a file called benchmark_results.csv in the results directory for writing. The newline="" argument is used to ensure that the CSV file is written with the correct line endings, regardless of the operating system being used. This is important because different operating systems use different line endings (e.g., Windows uses \r\n, while Unix-based systems use \n), and using the wrong line endings can cause issues when reading the CSV file later. By specifying newline="", we ensure that the CSV file is written with the correct line endings for the current operating system.
