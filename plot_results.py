@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from mimetypes import add_type
 import os
 import textwrap
 from pathlib import Path
@@ -278,12 +279,28 @@ def add_footer(fig: plt.Figure, page: int) -> None:
     fig.text(0.055, 0.035, "Source: results/benchmark_results.csv", fontsize=8, color=COLORS["muted"])
     fig.text(0.945, 0.035, f"Page {page}", fontsize=8, color=COLORS["muted"], ha="right")
 
+def add_page_title(fig, title: str, subtitle: str = "") -> None:
+    fig.text(
+        0.5,
+        0.865,
+        title,
+        ha="center",
+        va="center",
+        fontsize=23,
+        fontweight="bold",
+        color=COLORS["navy"],
+    )
 
-def add_page_title(fig: plt.Figure, title: str, subtitle: str = "") -> None:
-    fig.text(0.06, 0.84, title, fontsize=21.5, weight="bold", color=COLORS["navy"])
     if subtitle:
-        fig.text(0.06, 0.795, subtitle, fontsize=11.8, color=COLORS["muted"])
-
+        fig.text(
+            0.5,
+            0.822,
+            subtitle,
+            ha="center",
+            va="center",
+            fontsize=11,
+            color=COLORS["muted"],
+        )
 
 def draw_runtime_chart(ax: plt.Axes, summary: pd.DataFrame, data_type: str, crossovers: dict[str, Optional[int]]) -> None:
     data_for_type = summary[summary["data_type"] == data_type]
@@ -352,47 +369,142 @@ def crossover_text(value: object) -> str:
         return "No stable crossover"
     return f"n = {int(value)}"
 
-
 def create_cover_page(pdf: PdfPages, df: pd.DataFrame, page: int) -> None:
     fig = plt.figure(figsize=(11, 8.5), facecolor=COLORS["background"])
 
-    fig.add_artist(Rectangle((0, 0.69), 1, 0.31, transform=fig.transFigure, color=COLORS["navy"], zorder=-2))
-    fig.add_artist(Rectangle((0, 0.67), 1, 0.02, transform=fig.transFigure, color=COLORS["accent"], zorder=-1))
+    fig.add_artist(Rectangle((0, 0.72), 1, 0.28, transform=fig.transFigure, color=COLORS["navy"]))
+    fig.add_artist(Rectangle((0, 0.70), 1, 0.02, transform=fig.transFigure, color=COLORS["accent"]))
 
-    fig.text(0.065, 0.835, "Sorting Algorithm", fontsize=28, weight="bold", color="white")
-    fig.text(0.065, 0.78, "Benchmark Report", fontsize=28, weight="bold", color="white")
-    fig.text(0.065, 0.725, "Insertion Sort vs Selection Sort vs Merge Sort", fontsize=14, color="#D1D5DB")
-
-    add_card(fig, 0.065, 0.485, 0.87, 0.125)
-    summary_text = (
-        "This report compares measured running times for three sorting algorithms across multiple input "
-        "patterns and input sizes. The graphs show how runtime changes as n grows, and the tables estimate "
-        "where merge sort becomes consistently faster."
+    fig.text(
+        0.065,
+        0.90,
+        "Sorting Algorithm",
+        ha="left",
+        va="center",
+        fontsize=28,
+        fontweight="bold",
+        color="white",
     )
-    fig.text(0.09, 0.547, textwrap.fill(summary_text, 108), fontsize=11.2, color=COLORS["text"], linespacing=1.35, va="center")
 
-    stats = [
+    fig.text(
+        0.065,
+        0.845,
+        "Benchmark Report",
+        ha="left",
+        va="center",
+        fontsize=28,
+        fontweight="bold",
+        color="white",
+    )
+
+    fig.text(
+        0.065,
+        0.79,
+        "Insertion Sort vs Selection Sort vs Merge Sort",
+        ha="left",
+        va="center",
+        fontsize=13,
+        color="#CBD5E1",
+    )
+
+    intro_x = 0.07
+    intro_y = 0.49
+    intro_w = 0.86
+    intro_h = 0.13
+
+    add_card(fig, intro_x, intro_y, intro_w, intro_h)
+
+    intro_text = (
+        "This report compares measured running times for three sorting algorithms across "
+        "multiple input patterns and input sizes. The graphs show how runtime changes as n grows, "
+        "and the tables estimate where merge sort becomes consistently faster."
+    )
+
+    fig.text(
+        intro_x + intro_w / 2,
+        intro_y + intro_h / 2,
+        textwrap.fill(intro_text, 105),
+        ha="center",
+        va="center",
+        fontsize=11.2,
+        color=COLORS["text"],
+        linespacing=1.25,
+    )
+
+    metric_y = 0.315
+    metric_h = 0.115
+    metric_w = 0.195
+    metric_gap = 0.025
+    metric_start_x = (1 - (4 * metric_w + 3 * metric_gap)) / 2
+
+    metrics = [
         ("Benchmark rows", f"{len(df):,}"),
         ("Input patterns", str(df["data_type"].nunique())),
         ("Algorithms", str(df["algorithm"].nunique())),
         ("Input range", f"{int(df['size'].min())}-{int(df['size'].max())}"),
     ]
 
-    x_positions = [0.065, 0.29, 0.515, 0.74]
-    for x, (label, value) in zip(x_positions, stats):
-        add_card(fig, x, 0.295, 0.18, 0.12)
-        fig.text(x + 0.025, 0.37, label, fontsize=9.5, color=COLORS["muted"])
-        fig.text(x + 0.025, 0.32, value, fontsize=19, weight="bold", color=COLORS["navy"])
+    for index, metric in enumerate(metrics):
+        label, value = metric
+        x = metric_start_x + index * (metric_w + metric_gap)
 
-    add_card(fig, 0.065, 0.13, 0.87, 0.11)
-    fig.text(0.09, 0.205, "Report outputs", fontsize=12, weight="bold", color=COLORS["navy"])
-    outputs = [
-        "Individual PNG graphs saved in results/plots",
-        "PDF report saved as results/sorting_graph_report.pdf",
-        "Crossover summary saved as results/crossover_summary.csv",
-    ]
-    for index, output in enumerate(outputs):
-        fig.text(0.11, 0.178 - index * 0.026, output, fontsize=9.7, color=COLORS["text"])
+        add_card(fig, x, metric_y, metric_w, metric_h)
+
+        fig.text(
+            x + metric_w / 2,
+            metric_y + 0.073,
+            label,
+            ha="center",
+            va="center",
+            fontsize=9.3,
+            color=COLORS["muted"],
+        )
+
+        fig.text(
+            x + metric_w / 2,
+            metric_y + 0.038,
+            value,
+            ha="center",
+            va="center",
+            fontsize=18,
+            fontweight="bold",
+            color=COLORS["navy"],
+        )
+
+    outputs_x = 0.07
+    outputs_y = 0.13
+    outputs_w = 0.86
+    outputs_h = 0.115
+
+    add_card(fig, outputs_x, outputs_y, outputs_w, outputs_h)
+
+    fig.text(
+        outputs_x + outputs_w / 2,
+        outputs_y + 0.09,
+        "Report outputs",
+        ha="center",
+        va="center",
+        fontsize=12.2,
+        fontweight="bold",
+        color=COLORS["navy"],
+    )
+
+    outputs_text = (
+        "Individual PNG graphs saved in results/plots\n"
+        "PDF report saved as results/sorting_graph_report.pdf\n"
+        "Crossover summary saved as results/crossover_summary.csv"
+    )
+
+    fig.text(
+        outputs_x + outputs_w / 2,
+        outputs_y + 0.038,
+        outputs_text,
+        ha="center",
+        va="center",
+        fontsize=9.6,
+        color=COLORS["text"],
+        linespacing=1.5,
+    )
 
     add_footer(fig, page)
     pdf.savefig(fig)
@@ -460,28 +572,50 @@ def create_summary_page(pdf: PdfPages, crossover_df: pd.DataFrame, page: int) ->
     pdf.savefig(fig)
     plt.close(fig)
 
-
 def create_guide_page(pdf: PdfPages, page: int) -> None:
     fig = plt.figure(figsize=(11, 8.5), facecolor=COLORS["background"])
-    add_page_title(fig, "How to read the graphs", "Interpretation guide for the benchmark results")
 
-    guide_items = [
-        ("X-axis", "Input size n. Larger n means the algorithm sorted a longer list."),
-        ("Y-axis", "Average running time in milliseconds. Lower values mean faster execution."),
-        ("Lines", "Each line represents one algorithm. Selection sort appears as its own separate line."),
-        ("Crossover markers", "Vertical dashed lines mark where merge sort becomes consistently faster than an O(n^2) algorithm."),
-        ("Limitation", "Small benchmark timings are noisy, so the report uses repeated runs and a consecutive-size rule instead of relying on one isolated point."),
+    add_page_title(fig, "How to read the graphs", "Guide to interpreting the benchmark results")
+
+    items = [
+        ("X-axis", "The x-axis shows the input size n."),
+        ("Y-axis", "The y-axis shows the average running time in milliseconds."),
+        ("Lower line", "A lower line means the algorithm finished faster."),
+        ("Dashed line", "A dashed vertical line marks a stable crossover point."),
     ]
 
-    top = 0.68
-    row_h = 0.095
-    gap = 0.025
-    for index, (title, body) in enumerate(guide_items):
-        y = top - index * (row_h + gap)
-        add_card(fig, 0.065, y - row_h, 0.87, row_h)
-        fig.text(0.105, y - row_h / 2, title, fontsize=11.2, weight="bold", color=COLORS["navy"], va="center")
-        fig.add_artist(Rectangle((0.245, y - row_h + 0.018), 0.001, row_h - 0.036, transform=fig.transFigure, color=COLORS["border"], zorder=1))
-        fig.text(0.275, y - row_h / 2, textwrap.fill(body, 88), fontsize=10.2, color=COLORS["text"], linespacing=1.2, va="center")
+    card_w = 0.76
+    card_h = 0.105
+    card_x = (1 - card_w) / 2
+    start_y = 0.61
+    gap = 0.035
+
+    for index, item in enumerate(items):
+        title, body = item
+        card_y = start_y - index * (card_h + gap)
+
+        add_card(fig, card_x, card_y, card_w, card_h)
+
+        fig.text(
+            card_x + 0.04,
+            card_y + card_h * 0.62,
+            title,
+            ha="left",
+            va="center",
+            fontsize=12,
+            fontweight="bold",
+            color=COLORS["navy"],
+        )
+
+        fig.text(
+            card_x + 0.04,
+            card_y + card_h * 0.34,
+            body,
+            ha="left",
+            va="center",
+            fontsize=10.5,
+            color=COLORS["text"],
+        )
 
     add_footer(fig, page)
     pdf.savefig(fig)
@@ -489,33 +623,138 @@ def create_guide_page(pdf: PdfPages, page: int) -> None:
 
 def create_graph_page(pdf: PdfPages, summary: pd.DataFrame, data_type: str, crossover_row: pd.Series, page: int) -> None:
     fig = plt.figure(figsize=(11, 8.5), facecolor=COLORS["background"])
-    add_page_title(fig, f"{pretty_data_type(data_type)} input", "Average running time by input size")
 
-    add_card(fig, 0.055, 0.105, 0.64, 0.62)
-    add_card(fig, 0.72, 0.105, 0.225, 0.62)
+    if data_type in ["random", "sorted", "reverse"]:
+        title_y = 0.88
+        subtitle_y = 0.837
+    else:
+        title_y = 0.865
+        subtitle_y = 0.822
 
-    chart_ax = fig.add_axes([0.095, 0.19, 0.54, 0.44])
+    fig.text(
+        0.5,
+        title_y,
+        f"{pretty_data_type(data_type)} input",
+        ha="center",
+        va="center",
+        fontsize=23,
+        fontweight="bold",
+        color=COLORS["navy"],
+    )
+
+    fig.text(
+        0.5,
+        subtitle_y,
+        "Average running time by input size",
+        ha="center",
+        va="center",
+        fontsize=11,
+        color=COLORS["muted"],
+    )
+
+    graph_card_x = 0.07
+    graph_card_y = 0.13
+    graph_card_w = 0.62
+    graph_card_h = 0.55
+
+    side_card_x = 0.72
+    side_card_y = 0.13
+    side_card_w = 0.21
+    side_card_h = 0.55
+
+    add_card(fig, graph_card_x, graph_card_y, graph_card_w, graph_card_h)
+    add_card(fig, side_card_x, side_card_y, side_card_w, side_card_h)
+
+    chart_padding_x = 0.055
+    chart_padding_y = 0.085
+
+    chart_ax = fig.add_axes([
+        graph_card_x + chart_padding_x,
+        graph_card_y + chart_padding_y,
+        graph_card_w - 2 * chart_padding_x,
+        graph_card_h - 2 * chart_padding_y,
+    ])
+
     crossovers = {
         "Insertion vs Merge": crossover_row["insertion_vs_merge"],
         "Selection vs Merge": crossover_row["selection_vs_merge"],
     }
+
     draw_runtime_chart(chart_ax, summary, data_type, crossovers)
 
-    side_ax = fig.add_axes([0.75, 0.155, 0.16, 0.485])
+    side_padding_x = 0.03
+    side_padding_y = 0.06
+
+    side_ax = fig.add_axes([
+        side_card_x + side_padding_x,
+        side_card_y + side_padding_y,
+        side_card_w - 2 * side_padding_x,
+        side_card_h - 2 * side_padding_y,
+    ])
+
     side_ax.axis("off")
-    side_ax.text(0, 1.00, "Key results", fontsize=14, weight="bold", color=COLORS["navy"], va="top")
 
     fastest_name, largest_n = fastest_at_largest_n(summary, data_type)
-    side_ax.text(0, 0.82, "Fastest at largest n", fontsize=9.8, weight="bold", color=COLORS["text"], va="top")
-    side_ax.text(0, 0.75, f"{fastest_name}\nwhen n = {largest_n}", fontsize=9.2, color=COLORS["text"], va="top", linespacing=1.22)
 
-    side_ax.text(0, 0.55, "Stable crossovers", fontsize=9.8, weight="bold", color=COLORS["text"], va="top")
-    side_ax.text(0, 0.47, f"Insertion vs Merge\n{crossover_text(crossovers['Insertion vs Merge'])}", fontsize=9.1, color=COLORS["text"], va="top", linespacing=1.22)
-    side_ax.text(0, 0.30, f"Selection vs Merge\n{crossover_text(crossovers['Selection vs Merge'])}", fontsize=9.1, color=COLORS["text"], va="top", linespacing=1.22)
+    side_ax.text(
+        0,
+        1.00,
+        "Key results",
+        fontsize=14,
+        weight="bold",
+        color=COLORS["navy"],
+        va="top",
+    )
 
-    side_ax.text(0, 0.12, "Reading note", fontsize=9.8, weight="bold", color=COLORS["text"], va="top")
-    note = "Lower line means faster. Dashed line means stable crossover."
-    side_ax.text(0, 0.045, textwrap.fill(note, 28), fontsize=8.8, color=COLORS["text"], va="top", linespacing=1.18)
+    side_ax.text(
+        0,
+        0.78,
+        "Fastest at largest n",
+        fontsize=9.8,
+        weight="bold",
+        color=COLORS["text"],
+        va="top",
+    )
+
+    side_ax.text(
+        0,
+        0.69,
+        f"{fastest_name}\nwhen n = {largest_n}",
+        fontsize=9.2,
+        color=COLORS["text"],
+        va="top",
+        linespacing=1.25,
+    )
+
+    side_ax.text(
+        0,
+        0.46,
+        "Stable crossovers",
+        fontsize=9.8,
+        weight="bold",
+        color=COLORS["text"],
+        va="top",
+    )
+
+    side_ax.text(
+        0,
+        0.36,
+        f"Insertion vs Merge\n{crossover_text(crossovers['Insertion vs Merge'])}",
+        fontsize=9.1,
+        color=COLORS["text"],
+        va="top",
+        linespacing=1.25,
+    )
+
+    side_ax.text(
+        0,
+        0.17,
+        f"Selection vs Merge\n{crossover_text(crossovers['Selection vs Merge'])}",
+        fontsize=9.1,
+        color=COLORS["text"],
+        va="top",
+        linespacing=1.25,
+    )
 
     add_footer(fig, page)
     pdf.savefig(fig)

@@ -10,3 +10,6 @@ Today I worked on the benchmark_sorting file, and it was to basically create the
     < current_rows["average_time_seconds_insertion"]
 )
 is used to check if merge sort is faster in every row in that group.
+
+## 27th of June 2026 
+Today, I added selection sort to the program and the benchmark now compares all three of the algorithms. The first steo was to add the selection_sort function to the sorting_algorithms file, and then the next step was to add it to the benchmark program. I changed the benchmarking loop an dmade it run algorithms from a list so that new ones can be added more easily in the future. I had a tiny issue with some variables like insertion_time and merge_time but I ssolved them by storing the tining results for every algorithm in a dictionary for the input size, and I updated plot_results.py so that selection sort appears on the graphs, and changes the crossover analysis to insertion sort compared to merge sort and sleectino sort compared to merge sort. 

@@ -75,7 +75,7 @@ def run_benchmarks():
     RANDOM_SEED = 300
     random.seed(RANDOM_SEED)
     MIN_SIZE = 0
-    MAX_SIZE = 500
+    MAX_SIZE = 200
     SIZE_STEP = 1
     REPEATS = 10 #we can adjust these numbers later if needed.
     SIZES = list(range(MIN_SIZE, MAX_SIZE + 1, SIZE_STEP))#I wanted to use continous sizes from 0 to 500 with a step of 1. This will give us a good range of sizes to test the sorting algorithms on, and will allow us to see how the performance of the algorithms changes as the size of the input data increases. By using a step of 1, we can also see how the performance of the algorithms changes for small changes in the size of the input data, which can be useful for understanding the behavior of the algorithms in more detail.
