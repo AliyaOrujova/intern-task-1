@@ -1,7 +1,7 @@
 import random
 import csv 
 import time
-from sorting_algorithms import insertion_sort, merge_sort
+from sorting_algorithms import insertion_sort, merge_sort, selection_sort
 
 def generate_data(n, data_type):
     if data_type == "random":
@@ -42,14 +42,16 @@ def generate_data(n, data_type):
 def time_algorithm(sort_function, data, repeats):
     times = []
 
-    for _ in range(repeats): #This is to run the sorting algorithm multiple times on the same data and take the average time. This will help to reduce the impact of any outliers or fluctuations in the timing results, and give us a more reliable measurement of the performance of the sorting algorithm for the given data type and size.
+    for _ in range(repeats):
+        data_copy = data.copy()
+
         start_time = time.perf_counter()
-        sort_function(data)
+        sort_function(data_copy)
         end_time = time.perf_counter()
 
         times.append(end_time - start_time)
 
-    average_time = sum(times) / len(times) #and this is to take the averate time. 
+    average_time = sum(times) / len(times)
     return average_time
 
 
@@ -61,10 +63,17 @@ def warm_up():#the reason I have this is because the first time a function is ca
 
         insertion_sort(sample_data)
         merge_sort(sample_data)
+        selection_sort(sample_data)
 
 def run_benchmarks():
-    random.seed(300)#we need a seed because we want to be able to reproduce the results of the benchmark. If we do not set a seed, the random number generator will produce different results each time the benchmark is run, which will make it difficult to compare the results of different runs. By setting a seed, we ensure that the random number generator produces the same sequence of random numbers each time the benchmark is run, which allows us to compare the results of different runs more easily.
-    RANDOM_SEED = 42
+    algorithms = [
+    ("insertion_sort", insertion_sort),
+    ("selection_sort", selection_sort),
+    ("merge_sort", merge_sort),
+]
+    #we need a seed because we want to be able to reproduce the results of the benchmark. If we do not set a seed, the random number generator will produce different results each time the benchmark is run, which will make it difficult to compare the results of different runs. By setting a seed, we ensure that the random number generator produces the same sequence of random numbers each time the benchmark is run, which allows us to compare the results of different runs more easily.
+    RANDOM_SEED = 300
+    random.seed(RANDOM_SEED)
     MIN_SIZE = 0
     MAX_SIZE = 500
     SIZE_STEP = 1
@@ -99,16 +108,20 @@ def run_benchmarks():
             for size in SIZES:
                 data = generate_data(size, data_type)
 
-                insertion_time = time_algorithm(insertion_sort, data, REPEATS) #The REPEATS here is to ensure that we get a more accurate measurement of the time taken by the sorting algorithm. By running the sorting algorithm multiple times on the same data and taking the average time, we can reduce the impact of any outliers or fluctuations in the timing results. This will give us a more reliable measurement of the performance of the sorting algorithm for the given data type and size.
-                merge_time = time_algorithm(merge_sort, data, REPEATS)
+                times_for_size = {}
 
-                writer.writerow([data_type, size, "insertion_sort", insertion_time])
-                writer.writerow([data_type, size, "merge_sort", merge_time])
+                for algorithm_name, sort_function in algorithms:
+                    average_time = time_algorithm(sort_function, data, REPEATS)
+
+                    writer.writerow([data_type, size, algorithm_name, average_time])
+
+                    times_for_size[algorithm_name] = average_time
 
                 print(
-                    f"n={size:4d} | " #.4d means that the number will be printed with a width of 4 characters, and it will be right-aligned. If the number has fewer than 4 digits, it will be padded with spaces on the left to ensure that it takes up 4 characters in total. This formatting is useful for creating a clean and aligned output when printing multiple numbers in a table-like format.
-                    f"insertion={insertion_time:.8f}s | "#.8f means that the number will be printed as a floating-point number with 8 digits after the decimal point. This formatting is useful for displaying timing results with a high level of precision, allowing us to see small differences in the performance of the sorting algorithms. The 's' at the end indicates that the time is measured in seconds.
-                    f"merge={merge_time:.8f}s"#and f in general is used to indicate that the string is a formatted string literal, which allows us to embed expressions inside the string using curly braces {}. The expressions are evaluated at runtime, and their values are inserted into the string at the corresponding positions. This makes it easy to create dynamic strings that include variable values or computed results, such as the timing results of the sorting algorithms in this case.
+                    f"n={size:4d} | "
+                    f"insertion={times_for_size['insertion_sort']:.8f}s | "
+                    f"selection={times_for_size['selection_sort']:.8f}s | "
+                    f"merge={times_for_size['merge_sort']:.8f}s"
                 )
 
     print("\nBenchmarking finished. Results saved to results/benchmark_results.csv")

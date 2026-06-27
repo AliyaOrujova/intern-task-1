@@ -74,3 +74,17 @@ def merge(arr, left, middle, right): #This is the merge function that will be us
         arr[k] = R[j]
         j += 1
         k += 1
+
+def selection_sort(arr):
+    arr = arr.copy() #this is to make a copy of the original list so that we do not modify it. This is important because we want to check that the original list is not modified by the sorting algorithm.
+    #The way that selection sort works is that we iterate through the list and find the minimum element in the unsorted part of the list and swap it with the first element of the unsorted part of the list. We then repeat this process for the rest of the list until the entire list is sorted.
+    for i in range(len(arr) - 1): #This loop is the loop that I mentioned beforehand which goes from the first element to the second to last element of the list. We do not need to go to the last element because by the time we get to the second to last element, the last element will already be in its correct position.
+        min_index = i #This is the minimum index that we will use to keep track of the index of the minimum element in the unsorted part of the list. We initialize it to the current index i because we assume that the current element is the minimum element in the unsorted part of the list.
+
+        for j in range(i + 1, len(arr)): #This inner loop actually goes through the unsorted part of the list and finds the minimum element in the unsorted part of the list. We start from i + 1 because we want to compare the current element with the rest of the elements in the unsorted part of the list.
+            if arr[j] < arr[min_index]:#if the current element is less than the minimum element that we have found so far, we update the minimum index to the current index j.
+                min_index = j
+
+        arr[i], arr[min_index] = arr[min_index], arr[i] #and we swap the current element with the minimum element that we have found in the unsorted part of the list. This is done by using tuple unpacking to swap the elements at index i and min_index.
+
+    return arr
