@@ -51,9 +51,13 @@ def time_algorithm(sort_function, data, repeats):
 
         times.append(end_time - start_time)
 
-    average_time = sum(times) / len(times)
-    return average_time
+    times.sort()
+    middle = len(times) // 2
 
+    if len(times) % 2 == 1:
+        return times[middle]
+
+    return (times[middle - 1] + times[middle]) / 2
 
 def warm_up():#the reason I have this is because the first time a function is called, it can take longer due to various factors such as caching, memory allocation, and other optimizations that the Python interpreter may perform. By running the sorting algorithms on a small dataset before the actual benchmarking, we can ensure that these optimizations have already been performed and that the timing results are more accurate and consistent.
     data_types = ["random", "sorted", "reverse", "duplicates"]
