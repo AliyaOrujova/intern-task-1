@@ -1,6 +1,6 @@
 import random
 
-from sorting_algorithms import insertion_sort, merge_sort
+from sorting_algorithms import insertion_sort, merge_sort, selection_sort
 from benchmark_sorting import generate_data
 
 
@@ -9,9 +9,11 @@ def check_one_case(data):
 
     original_for_insertion = data.copy()
     original_for_merge = data.copy()
+    original_for_selection = data.copy()
 
     insertion_answer = insertion_sort(original_for_insertion)#This is to sort the list using insertion sort. We pass in a copy of the original list so that we do not modify the original list. This is important because we want to check that the original list is not modified by the sorting algorithm.
     merge_answer = merge_sort(original_for_merge)#and this is the same thing but for merge sort.
+    selection_answer=selection_sort(original_for_selection)#and this is the same thing but for selection sort.
 
     if insertion_answer != expected_answer:
         print("Insertion sort failed")
@@ -26,6 +28,13 @@ def check_one_case(data):
         print("Expected:", expected_answer)
         print("Got:", merge_answer)
         raise AssertionError
+    
+    if selection_answer != expected_answer:
+        print("Selection sort failed")
+        print("Original data:", data)
+        print("Expected:", expected_answer)
+        print("Got:", selection_answer)
+        raise AssertionError
 
     if original_for_insertion != data:
         print("Insertion sort changed the original list")
@@ -37,6 +46,11 @@ def check_one_case(data):
         print("Merge sort changed the original list")
         print("Before:", data)
         print("After:", original_for_merge)
+        raise AssertionError
+    if original_for_selection != data:
+        print("Selection sort changed the original list")
+        print("Before:", data)
+        print("After:", original_for_selection)
         raise AssertionError
 
 

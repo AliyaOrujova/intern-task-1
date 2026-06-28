@@ -3,7 +3,7 @@
     "min_size": 0,
     "max_size": 200,
     "size_step": 1,
-    "repeats_per_test": 10,
+    "repeats_per_test": 100,
     "algorithms": [
         "insertion_sort",
         "selection_sort",

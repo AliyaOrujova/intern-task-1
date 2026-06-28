@@ -85,7 +85,7 @@ def run_benchmarks():
     MIN_SIZE = 0
     MAX_SIZE = 200
     SIZE_STEP = 1
-    REPEATS = 10 #we can adjust these numbers later if needed.
+    REPEATS = 100 #we can adjust these numbers later if needed.
     SIZES = list(range(MIN_SIZE, MAX_SIZE + 1, SIZE_STEP))#I wanted to use continous sizes from 0 to 500 with a step of 1. This will give us a good range of sizes to test the sorting algorithms on, and will allow us to see how the performance of the algorithms changes as the size of the input data increases. By using a step of 1, we can also see how the performance of the algorithms changes for small changes in the size of the input data, which can be useful for understanding the behavior of the algorithms in more detail.
 
     data_types = [
@@ -110,7 +110,7 @@ def run_benchmarks():
 
     with open("results/benchmark_metadata.json", "w") as metadata_file:
         json.dump(metadata, metadata_file, indent=4)
-        
+
     warm_up()
 
     with open("results/benchmark_results.csv", "w", newline="") as file: #okay so this part is to open a file called benchmark_results.csv in the results directory for writing. The newline="" argument is used to ensure that the CSV file is written with the correct line endings, regardless of the operating system being used. This is important because different operating systems use different line endings (e.g., Windows uses \r\n, while Unix-based systems use \n), and using the wrong line endings can cause issues when reading the CSV file later. By specifying newline="", we ensure that the CSV file is written with the correct line endings for the current operating system.
