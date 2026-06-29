@@ -1,8 +1,8 @@
 data_type,insertion_vs_merge,selection_vs_merge
-random,108.0,80
+random,108.0,77
 sorted,,80
-reverse,45.0,73
-duplicates,115.0,81
-nearly_sorted,,82
-all_equal,,80
-few_unique,120.0,86
+reverse,44.0,73
+duplicates,115.0,84
+nearly_sorted,,83
+all_equal,,81
+few_unique,120.0,84
