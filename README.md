@@ -6,7 +6,7 @@ pip install pandas matplotlib
 
 Run the tests to check that the sorting algorithms work correctly:
 
-python test_sorting.py
+python test_algorithms.py
 
 Run the benchmark:
 
